@@ -8,7 +8,6 @@ import (
 	"github.com/christopherfriedrich/tf-ea/internal/log"
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/hclparse"
-	"github.com/hashicorp/hcl/v2/hclsyntax"
 )
 
 func ParseDir(dirPath string) {
@@ -100,15 +99,4 @@ func translateDirectoryFiles(parsedDirectoryFiles parsedFiles) (Blocks, error) {
 }
 
 type Context struct {
-}
-
-func NewBlock(file string, originalBlock *hcl.Block, ctx *Context, module *Block) *Block {
-	if ctx == nil {
-		ctx = NewContext()
-	}
-
-	var children Blocks
-	if body, ok := originalBlock.Body.(*hclsyntax.Body); ok {
-
-	}
 }
