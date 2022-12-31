@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/hcl/v2"
+	"github.com/hashicorp/hcl/v2/hclsyntax"
 )
 
 var (
@@ -67,6 +68,46 @@ type Block struct {
 	childBlocks Blocks
 	// the original hcl.Block this Block was created from
 	originalBlock *hcl.Block
+}
+
+func NewBlock(file string, hclBlock *hcl.Block, parentBlock *Block) *Block {
+	var children Blocks
+
+	if body, ok := hclBlock.Body.(*hclsyntax.Body); ok {
+		for _, bodyblock := range body.Blocks {
+			children = append(children, NewBlock(file, bodyblock.AsHCLBlock(), parentBlock))
+		}
+
+		return &Block{
+			parentBlock:   parentBlock,
+			childBlocks:   children,
+			originalBlock: hclBlock,
+		}
+	}
+
+	content, _, diag := hclBlock.Body.PartialContent(tf_schema)
+	if diag != nil && diag.HasErrors() {
+		block := &Block{
+			parentBlock:   parentBlock,
+			childBlocks:   children,
+			originalBlock: hclBlock,
+		}
+
+		return block
+	}
+
+	for _, hb := range content.Blocks {
+		children = append(children, NewBlock(file, hb, parentBlock))
+	}
+
+	block := &Block{
+		parentBlock:   parentBlock,
+		childBlocks:   children,
+		originalBlock: hclBlock,
+	}
+
+	return block
+
 }
 
 func (block Block) Type() string {

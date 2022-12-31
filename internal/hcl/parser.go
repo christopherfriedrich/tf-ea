@@ -78,12 +78,8 @@ func translateDirectoryFiles(parsedDirectoryFiles parsedFiles) (Blocks, error) {
 	var parsedBlocks Blocks
 
 	for _, file := range parsedDirectoryFiles {
-		fileBlocks, err := loadBlocksFromFile(file, nil)
+		fileBlocks, err := loadBlocksFromFile(file)
 		if err != nil {
-			if p.stopOnHCLError {
-				return nil, err
-			}
-
 			log.Logger.Sugar().Warnf("skipping file could not load blocks err: %s", err)
 			continue
 		}
@@ -95,7 +91,7 @@ func translateDirectoryFiles(parsedDirectoryFiles parsedFiles) (Blocks, error) {
 		for _, fileBlock := range fileBlocks {
 			parsedBlocks = append(
 				parsedBlocks,
-				NewBlock(file.path, fileBlock, nil, nil),
+				NewBlock(file.path, fileBlock, nil),
 			)
 		}
 	}
