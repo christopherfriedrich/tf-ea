@@ -129,14 +129,19 @@ func (blocks Blocks) WithType(requestedType string) Blocks {
 	return blocksWithRequestedType
 }
 
-func loadBlocksFromFile(file parsedFile) (hcl.Blocks, error) {
-	contents, diags := file.hclFile.Body.Content(tf_schema)
+// TODO: rename & rewrite: https://github.com/infracost/infracost/blob/cadd5d8ee3cc854f8f161f7753fc75cd1b47d94f/internal/hcl/block.go#L982
+func loadBlocksFromFile(file parsedFile, schema *hcl.BodySchema) (hcl.Blocks, error) {
+	if schema == nil {
+		schema = tf_schema
+	}
+
+	contents, diags := file.hclFile.Body.Content(schema)
 	if diags != nil && diags.HasErrors() {
 		return nil, diags
 	}
 
 	if contents == nil {
-		return nil, fmt.Errorf("empty file, can not load blocks")
+		return nil, fmt.Errorf("no blocks inside the file")
 	}
 
 	return contents.Blocks, nil
